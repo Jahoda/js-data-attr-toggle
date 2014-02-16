@@ -1,0 +1,81 @@
+<!doctype html>
+<title>Toggling (show/hide) elements via data-attributes</title>
+
+<style>
+*[data-off] {display: none}
+*[data-control-on] {color: red}
+</style>
+
+<button data-toggle-control="first-content">Toggle 1</button>
+<button data-toggle-control="second-content" data-control-on>Toggle 2</button>
+<button data-toggle-control="third-content">Toggle 3</button>
+
+<div data-toggle="first-content">
+  <p>Lorem ipsum 1</p>
+</div>
+
+<div data-toggle="second-content">
+  <p>Lorem ipsum 2</p>
+</div>
+
+<div data-toggle="third-content">
+  <p>Lorem ipsum 3</p>
+</div>
+
+
+<script>
+var Toogle = function() {
+  var attr = {control : "data-toggle-control", toggle : "data-toggle"};
+  var status = {
+    "on"  : {control : "data-control-on", toggle : "data-on"},
+    "off" : {control : "data-control-off", toggle : "data-off"}
+  };
+  
+  var toggle = function() {
+    showHide(this, this.hasAttribute(status["off"].control));
+  }
+
+  var showHide = function(el, show) {
+    var remove = show ? "off" : "on";
+    var set = show ? "on" : "off";
+    var related = relatedToggle(el);
+    el.removeAttribute(status[remove].control);
+    related.removeAttribute(status[remove].toggle);
+    el.setAttribute(status[set].control, "");
+    related.setAttribute(status[set].toggle, "");
+  }
+
+  var relatedToggle = function(control) {
+    return document.querySelector("[" + attr.toggle + "='" + control.getAttribute(attr.control) + "']");
+  }
+
+  var hideToggles = function() {
+    var toggles = document.querySelectorAll("[" + attr.toggle + "]");
+    for (var i = toggles.length - 1; i >= 0; i--) {
+      toggles[i].setAttribute(status["off"].toggle, "");
+    } 
+  }
+  
+  var init = function() {
+    hideToggles();
+   
+    var controls = document.querySelectorAll("[" + attr.control + "]");
+    for (var i = controls.length - 1; i >= 0; i--) {
+      if (controls[i].hasAttribute(status["on"].control)) {
+        relatedToggle(controls[i]).removeAttribute(status["off"].toggle);
+      }
+      else {
+        controls[i].setAttribute(status["off"].control, "");
+      }
+      controls[i].onclick = toggle;
+    }
+  }  
+
+  return {
+    init: init
+  };
+
+}();
+
+Toogle.init();
+</script>
